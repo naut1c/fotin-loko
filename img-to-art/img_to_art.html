@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Art Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Image to Text Art Converter</h1>
+            <p>Transform your images into colorful text art with advanced customization and AI-powered selection</p>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="panel">
+                    <h2>📁 Upload & Configure</h2>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imageInput" class="file-input" accept="image/*">
+                        <div class="file-input-display">
+                            <div class="upload-icon">📤</div>
+                            <div>Choose Image Files</div>
+                            <div class="upload-hint">Drag & drop or click to browse</div>
+                        </div>
+                    </div>
+
+                    <div class="file-list" id="fileList" style="display: none;"></div>
+
+                    <div class="controls-group">
+                        <label>Output Dimensions (characters)</label>
+                        <div class="controls-row">
+                            <div class="input-group">
+                                <input type="number" id="widthInput" placeholder="Width" value="50" min="1" max="200">
+                                <span class="input-label">W</span>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" id="heightInput" placeholder="Height" value="30" min="1" max="200">
+                                <span class="input-label">H</span>
+                            </div>
+                            <button class="btn-secondary" id="aspectLockBtn" title="Lock aspect ratio">🔓</button>
+                        </div>
+                    </div>
+
+                    <div class="controls-group">
+                        <label>Image Adjustments</label>
+                        <div class="controls-row">
+                            <label for="brightnessSlider">Brightness</label>
+                            <input type="range" id="brightnessSlider" min="-100" max="100" value="0" class="slider">
+                            <span id="brightnessValue">0</span>
+                        </div>
+                        <div class="controls-row">
+                            <label for="contrastSlider">Contrast</label>
+                            <input type="range" id="contrastSlider" min="-100" max="100" value="0" class="slider">
+                            <span id="contrastValue">0</span>
+                        </div>
+                        <div class="controls-row">
+                            <label for="saturationSlider">Saturation</label>
+                            <input type="range" id="saturationSlider" min="-100" max="100" value="0" class="slider">
+                            <span id="saturationValue">0</span>
+                        </div>
+                        <div class="controls-row">
+                            <label for="thresholdSlider">Threshold</label>
+                            <input type="range" id="thresholdSlider" min="0" max="255" value="0" class="slider">
+                            <span id="thresholdValue">Off</span>
+                        </div>
+                    </div>
+
+                    <div class="controls-group">
+                        <label>Character Set</label>
+                        <select id="characterSet" class="select-input">
+                            <option value="block">█ Full Block</option>
+                            <option value="gradient">░▒▓█ Gradient Blocks</option>
+                            <option value="ascii">.:;+=xX$&#@ ASCII</option>
+                            <option value="braille">⠀⠁⠃⠇⠏⠟⠿⡿ Braille</option>
+                            <option value="custom">Custom Characters</option>
+                        </select>
+                        <input type="text" id="customChars" placeholder="Enter custom characters..." class="custom-input" style="display: none;">
+                    </div>
+
+                    <div class="controls-group">
+                        <label>Color Sampling Method</label>
+                        <select id="samplingMethod" class="select-input">
+                            <option value="average">Average (Smooth)</option>
+                            <option value="center">Center Pixel (Sharp)</option>
+                            <option value="dominant">Most Dominant Color</option>
+                            <option value="median">Median Color</option>
+                            <option value="weighted">Weighted Average</option>
+                        </select>
+                    </div>
+
+                    <div class="controls-group">
+                        <div class="controls-row">
+                            <button id="showGridBtn" class="btn-secondary" disabled>Show Grid</button>
+                            <button id="resetBtn" class="btn-secondary" disabled>Reset</button>
+                            <button id="presetBtn" class="btn-secondary" disabled>Presets</button>
+                        </div>
+                    </div>
+
+                    <div class="selection-info" id="selectionInfo">
+                        No image loaded. Upload an image to begin.
+                    </div>
+
+                    <div class="controls-group">
+                        <div class="checkbox-row">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="livePreview" checked> 
+                                <span class="checkmark"></span>
+                                Live Preview
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="autoEnhance"> 
+                                <span class="checkmark"></span>
+                                Auto Enhance
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>🖼️ Image Preview</h2>
+                        <div class="panel-controls">
+                            <button class="btn-icon" id="zoomOutBtn" title="Zoom Out">🔍-</button>
+                            <span id="zoomLevel">100%</span>
+                            <button class="btn-icon" id="zoomInBtn" title="Zoom In">🔍+</button>
+                            <button class="btn-icon" id="fitBtn" title="Fit to View">📐</button>
+                        </div>
+                    </div>
+                    
+                    <div class="canvas-container" id="canvasContainer">
+                        <canvas id="imageCanvas"></canvas>
+                        <div class="canvas-overlay">
+                            <div class="selection-handles" id="selectionHandles" style="display: none;">
+                                <div class="handle nw"></div>
+                                <div class="handle ne"></div>
+                                <div class="handle sw"></div>
+                                <div class="handle se"></div>
+                                <div class="handle n"></div>
+                                <div class="handle s"></div>
+                                <div class="handle w"></div>
+                                <div class="handle e"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-bar">
+                        <span id="canvasStatus">Upload an image to see preview</span>
+                        <span id="imageInfo"></span>
+                    </div>
+                    
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <h3>🔍 Live Text Preview</h3>
+                            <div class="preview-controls">
+                                <button class="btn-icon" id="previewZoomOut">A</button>
+                                <button class="btn-icon" id="previewZoomIn">A+</button>
+                            </div>
+                        </div>
+                        <div class="preview-area" id="previewArea">Live preview will appear here...</div>
+                    </div>
+                </div>
+
+                <div class="generate-section">
+                    <div class="generate-controls">
+                        <button id="generateBtn" class="btn-primary" disabled>
+                            <span class="btn-icon">⚡</span>
+                            Generate Full Text Art
+                        </button>
+                    </div>
+                    
+                    <div class="progress-bar" id="progressBar" style="display: none;">
+                        <div class="progress-fill"></div>
+                        <span class="progress-text">Processing...</span>
+                    </div>
+                </div>
+
+                <div class="output-container">
+                    <div class="output-header">
+                        <h2>📝 Generated Text Art</h2>
+                        <div class="output-controls">
+                            <button id="copyBtn" class="btn-secondary" disabled>📋 Copy</button>
+                            <button id="downloadBtn" class="btn-secondary" disabled>💾 Download</button>
+                        </div>
+                    </div>
+                    <div class="output-area" id="outputArea">Your text art will appear here...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preset Modal -->
+    <div class="modal" id="presetModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Choose a Preset</h3>
+                <button class="modal-close" id="closePresetModal">×</button>
+            </div>
+            <div class="preset-grid">
+                <div class="preset-item" data-preset="photo">
+                    <div class="preset-preview">📷</div>
+                    <div class="preset-name">Photo</div>
+                    <div class="preset-desc">High detail, natural colors</div>
+                </div>
+                <div class="preset-item" data-preset="artwork">
+                    <div class="preset-preview">🎨</div>
+                    <div class="preset-name">Artwork</div>
+                    <div class="preset-desc">Enhanced contrast, vivid colors</div>
+                </div>
+                <div class="preset-item" data-preset="terminal">
+                    <div class="preset-preview">💻</div>
+                    <div class="preset-name">Terminal</div>
+                    <div class="preset-desc">Monospace, high contrast</div>
+                </div>
+                <div class="preset-item" data-preset="retro">
+                    <div class="preset-preview">📺</div>
+                    <div class="preset-name">Retro</div>
+                    <div class="preset-desc">8-bit style, limited colors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
